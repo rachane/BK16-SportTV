@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IPTV by BK-16</title>
+
+<style>
+  :root{
+    --bg1:#0b1220;
+    --bg2:#08101d;
+    --panel:#0f172a;
+    --border:#334155;
+    --muted:#9fb2c7;
+    --brand1:#17c1d6;
+    --brand2:#31d17b;
+    --bad:#fca5a5;
+    --warn:#facc15;
+    --ok:#86efac;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Arial,sans-serif;
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#fff;
+  }
+
+  header{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:rgba(0,0,0,.35);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+
+  .bar{
+    max-width:1200px;
+    margin:0 auto;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+
+  .brand img{
+    width:64px;
+    height:64px;
+    object-fit:contain;
+    border-radius:10px;
+    display:block;
+  }
+
+  .title{
+    font-weight:900;
+    letter-spacing:.3px;
+    font-size:clamp(22px,4vw,34px);
+    background:linear-gradient(90deg,var(--brand1),var(--brand2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  main{
+    max-width:1200px;
+    margin:16px auto;
+    padding:0 12px 24px;
+  }
+
+  .player{
+    width:100%;
+    aspect-ratio:16/9;
+    background:#000;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.12);
+  }
+
+  video{
+    width:100%;
+    height:100%;
+    background:#000;
+    outline:none;
+  }
+
+  #status{
+    min-height:24px;
+    margin-top:8px;
+    text-align:center;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  #status.bad{color:var(--bad)}
+  #status.ok{color:var(--ok)}
+
+  .grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:12px;
+    justify-content:center;
+  }
+
+  .ch{
+    position:relative;
+    width:150px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    cursor:pointer;
+    text-align:center;
+    padding:8px;
+    transition:transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+
+  .ch:hover{
+    transform:translateY(-1px);
+    background:#0b1220;
+    border-color:rgba(23,193,214,.55);
+  }
+
+  .ch.active{
+    outline:2px solid var(--brand1);
+    box-shadow:0 0 0 3px rgba(23,193,214,.25) inset;
+  }
+
+  .ch img{
+    width:100%;
+    height:84px;
+    object-fit:contain;
+    display:block;
+    margin:0 auto 6px;
+  }
+
+  .name{
+    font-size:13px;
+    color:#dbeafe;
+    min-height:34px;
+  }
+
+  .hint{
+    margin:10px 0 0;
+    text-align:center;
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+
+  /* ===== Player Modal ===== */
+  .modal-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(0,0,0,.62);
+    backdrop-filter:blur(5px);
+  }
+
+  .modal-backdrop.show{
+    display:flex;
+  }
+
+  .modal{
+    width:min(520px,100%);
+    background:linear-gradient(180deg,#111c33,#0b1220);
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:18px;
+    box-shadow:0 20px 80px rgba(0,0,0,.45);
+    overflow:hidden;
+  }
+
+  .modal-head{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:14px 16px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+
+  .modal-head img{
+    width:58px;
+    height:58px;
+    object-fit:contain;
+    border-radius:10px;
+    background:#fff;
+    padding:4px;
+  }
+
+  .modal-title{
+    flex:1;
+  }
+
+  .modal-title strong{
+    display:block;
+    font-size:17px;
+  }
+
+  .modal-title span{
+    display:block;
+    margin-top:3px;
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  .close-btn{
+    width:34px;
+    height:34px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.16);
+    background:#0f172a;
+    color:#fff;
+    cursor:pointer;
+    font-size:18px;
+  }
+
+  .modal-body{
+    padding:14px 16px 16px;
+  }
+
+  .modal-note{
+    margin:0 0 12px;
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(250,204,21,.10);
+    border:1px solid rgba(250,204,21,.25);
+    color:#fde68a;
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  .btn-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+
+  .action-btn{
+    width:100%;
+    border:1px solid rgba(255,255,255,.12);
+    background:#111c33;
+    color:#fff;
+    padding:12px 13px;
+    border-radius:12px;
+    cursor:pointer;
+    text-align:left;
+    font-weight:900;
+    transition:transform .12s ease, background .12s ease;
+  }
+
+  .action-btn:hover{
+    transform:translateY(-1px);
+    background:#152541;
+  }
+
+  .action-btn small{
+    display:block;
+    margin-top:3px;
+    color:var(--muted);
+    font-weight:500;
+    line-height:1.35;
+  }
+
+  .action-btn.primary{
+    border-color:rgba(23,193,214,.45);
+    background:linear-gradient(90deg,rgba(23,193,214,.22),rgba(49,209,123,.18));
+  }
+
+  .action-btn.warn{
+    border-color:rgba(250,204,21,.35);
+  }
+
+  /* iOS deep-link button grid */
+  .ios-btn-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+    margin-top:9px;
+  }
+
+  .ios-app-btn{
+    border:1px solid rgba(255,255,255,.12);
+    background:#111c33;
+    color:#fff;
+    padding:11px 10px;
+    border-radius:12px;
+    cursor:pointer;
+    text-align:center;
+    font-weight:700;
+    font-size:14px;
+    transition:transform .12s ease, background .12s ease;
+  }
+
+  .ios-app-btn:hover{
+    transform:translateY(-1px);
+    background:#152541;
+  }
+
+  .ios-app-btn small{
+    display:block;
+    margin-top:2px;
+    color:var(--muted);
+    font-weight:400;
+    font-size:11px;
+  }
+
+  @media (min-width:520px){
+    .btn-grid{
+      grid-template-columns:1fr 1fr;
+    }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">
+      <img alt="BK-16" src="https://dl.dropbox.com/scl/fi/nx2b6zyo5cp4hwgtit12b/22-11-66-01-33-23.png?rlkey=khnfawin5mmaxg1vxq5l7nro3&dl=0">
+      <div class="title">IPTV by BK-16</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="player">
+    <video id="v" controls playsinline muted></video>
+  </div>
+
+  <div id="status">กำลังโหลดช่องแรก...</div>
+
+  <div id="grid-sports" class="grid"></div>
+
+  <p class="hint">
+    * คลิกโลโก้ช่องเพื่อเล่นทันที &nbsp;|&nbsp; อัพเดตล่าสุด by BK-16
+  </p>
+</main>
+
+<!-- ===== Mobile fallback modal ===== -->
+<div id="playerModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <img id="modalLogo" src="" alt="">
+      <div class="modal-title">
+        <strong id="modalName">External Player</strong>
+        <span id="modalSub">เลือกวิธีเปิดช่องนี้</span>
+      </div>
+      <button class="close-btn" id="closeModal" title="ปิด">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-note" id="modalNote"></p>
+
+      <!-- Android / Desktop buttons (shown when NOT iOS) -->
+      <div id="nonIosButtons" class="btn-grid">
+        <button class="action-btn primary" id="btnMobilePlayer">
+          เปิดด้วยแอป Player
+          <small id="btnMobilePlayerSmall">เลือก VLC / Wiseplay / Liftplay หรือแอปที่รองรับ HLS</small>
+        </button>
+        <button class="action-btn warn" id="btnOpenTab">
+          เปิดแท็บใหม่
+          <small>ใช้เมื่อ browser หรือแอปในเครื่องสามารถรับลิงก์นี้ไปเล่นต่อได้</small>
+        </button>
+      </div>
+
+      <!-- iOS deep-link buttons (shown only on iOS) -->
+      <div id="iosButtons" style="display:none">
+        <p style="margin:0 0 8px;font-size:13px;color:var(--muted);">เลือกแอปที่ติดตั้งในเครื่อง:</p>
+        <div class="ios-btn-grid">
+          <button class="ios-app-btn" id="btnVLC">
+            📺 VLC
+            <small>vlc://</small>
+          </button>
+          <button class="ios-app-btn" id="btnLiftplay">
+            🎬 Liftplay
+            <small>liftplay://</small>
+          </button>
+          <button class="ios-app-btn" id="btnInfuse">
+            🎞 Infuse
+            <small>infuse://</small>
+          </button>
+          <button class="ios-app-btn" id="btnNPlayer">
+            🎵 nPlayer
+            <small>nplayer-http://</small>
+          </button>
+        </div>
+        <button class="action-btn warn" id="btnIOSTab" style="margin-top:9px;width:100%;">
+          เปิดแท็บใหม่
+          <small>ถ้าไม่มีแอปข้างต้น ให้ลองเปิดลิงก์ในแท็บใหม่</small>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==============================
+   Channel list
+================================= */
+const sports = [
+
+   /* Monomax World Cup */
+  {
+    id:"wc-monomax1",
+    name:"FIFA World Cup MonoMax1",
+    logo:"https://img2.pic.in.th/WorldCup.png",
+    url:"https://yyi7tewa2x.3ppnkog.com/xstream/monomax-2/playlist.m3u8"
+  },
+  {
+    id:"wc-monomax2",
+    name:"FIFA World Cup MonoMax2",
+    logo:"https://img2.pic.in.th/WorldCup.png",
+    url:"https://yyi7tewa2x.3ppnkog.com/xstream/monomax-3/playlist.m3u8"
+  },
+  {
+    id:"wc-monomax3",
+    name:"FIFA World Cup MonoMax3",
+    logo:"https://img2.pic.in.th/WorldCup.png",
+    url:"https://yyi7tewa2x.3ppnkog.com/xstream/monomax-1/playlist.m3u8"
+  },
+  {
+    id:"fifa-plus",
+    name:"FIFA+",
+    logo:"https://img2.pic.in.th/Fifa.png",
+    url:"https://a62dad94.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0ZJRkFQbHVzRW5nbGlzaF9ITFM/playlist.m3u8"
+  },
+
+/* Monomax */
+  {
+    id:"monomax01",
+    name:"Monomax Sport 01",
+    logo:"https://img1.pic.in.th/images/011c7ba4fae8fe556a4.png",
+    url:"https://blive99.github.io/m3u8/sporttv/monomax1.m3u8"
+  },
+  {
+    id:"monomax02",
+    name:"Monomax Sport 02",
+    logo:"https://img2.pic.in.th/maxc2d18f180c225ce1.png",
+    url:"https://blive99.github.io/m3u8/sporttv/monomax2.m3u8"
+  },
+  {
+    id:"monomax03",
+    name:"Monomax Sport 03",
+    logo:"https://img2.pic.in.th/maxc2d18f180c225ce1.png",
+    url:"https://blive99.github.io/m3u8/sporttv/monomax3.m3u8"
+  },
+
+  /* True Sport */
+  {
+    id:"redbulltv",
+    name:"Red Bull TV",
+    logo:"https://img2.sport-tv-guide.live/images/tv-station-red-bull-tv-2760.png",
+    url:"https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master_3360.m3u8"
+  },
+  {
+    id:"spotv1",
+    name:"SPOTV 1",
+    logo:"https://ball67.com/assets/channels-logo/spotv1.png",
+    url:"https://blive99.github.io/m3u8/sporttv/truespotv2.m3u8"
+  },
+  {
+    id:"spotv2",
+    name:"SPOTV 2",
+    logo:"https://ball67.com/assets/channels-logo/spotv2.png",
+    url:"https://blive99.github.io/m3u8/sporttv/truespotv.m3u8"
+  },
+  {
+    id:"bein1",
+    name:"beIN SPORT TH 1",
+    logo:"https://ball67.com/assets/channels-logo/bein1.png",
+    url:"http://54.37.19.157/bein1/tracks-v1a1/mono.m3u8"  
+  },
+  {
+    id:"bein2",
+    name:"AIS beIN SPORT 2",
+    logo:"https://ball67.com/assets/channels-logo/bein2.png",
+    url:"http://54.37.19.157/bein2/tracks-v1a1/mono.m3u8"
+  },
+  {
+    id:"bein3",
+    name:"beIN SPORT TH 3",
+    logo:"https://ball67.com/assets/channels-logo/bein3.png",
+    url:"http://54.37.19.157/bein3/tracks-v1a1/mono.m3u8"
+  },
+  {
+    id:"truesport1",
+    name:"True Sport 1",
+    logo:"https://img2.pic.in.th/true1.png",
+    url:"https://www.livedoomovies.com:4431/02_sport1_720p/playlist.m3u8"
+  },
+  {
+    id:"truesport2",
+    name:"True Sport 2",
+    logo:"https://img1.pic.in.th/images/true2.png",
+    url:"https://www.livedoomovies.com:4431/02_sport1_720p/playlist.m3u8"
+  },
+
+{
+    id:"truesport3",
+    name:"True Sport 3",
+    logo:"https://img1.pic.in.th/images/true3.png",
+    url:"https://www.livedoomovies.com:4431/02_sport1_720p/playlist.m3u8"
+  },
+
+  {
+    id:"lfctv",
+    name:"LFC TV",
+    logo:"https://img2.sport-tv-guide.live/images/tv-station-lfc-tv-112.png",
+    url:"https://dlhd.pk/watch/stream-826.php"
+  },
+
+  {
+    id:"Fox Sport 1HD",
+    name:"Fox Sport 1HD",
+    logo:"https://img1.pic.in.th/images/F1.png",
+    url:"http://185.246.209.113/FoxSports1HD/index.m3u8"
+  },
+
+  {
+    id:"monomax01",
+    name:"Monomax Sport 01",
+    logo:"https://img1.pic.in.th/images/011c7ba4fae8fe556a4.png",
+    url:"https://raw.githubusercontent.com/tummeng21/m3u8/refs/heads/main/max1.m3u8"
+  }
+  
+];
+
+
+/* ==============================
+   Elements
+================================= */
+const v = document.getElementById('v');
+const gridSports = document.getElementById('grid-sports');
+const statusBox = document.getElementById('status');
+
+const playerModal = document.getElementById('playerModal');
+const modalLogo = document.getElementById('modalLogo');
+const modalName = document.getElementById('modalName');
+const modalNote = document.getElementById('modalNote');
+const closeModal = document.getElementById('closeModal');
+
+const nonIosButtons = document.getElementById('nonIosButtons');
+const iosButtons = document.getElementById('iosButtons');
+
+const btnMobilePlayer = document.getElementById('btnMobilePlayer');
+const btnMobilePlayerSmall = document.getElementById('btnMobilePlayerSmall');
+const btnOpenTab = document.getElementById('btnOpenTab');
+const btnIOSTab = document.getElementById('btnIOSTab');
+
+const btnVLC = document.getElementById('btnVLC');
+const btnLiftplay = document.getElementById('btnLiftplay');
+const btnInfuse = document.getElementById('btnInfuse');
+const btnNPlayer = document.getElementById('btnNPlayer');
+
+let _hls = null;
+let selectedChannel = null;
+let fallbackTimer = null;
+let playToken = 0;
+let fallbackShown = false;
+
+
+/* ==============================
+   Device detection
+================================= */
+function isAndroid(){
+  return /Android/i.test(navigator.userAgent);
+}
+
+function isIOS(){
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function isDesktop(){
+  return !isAndroid() && !isIOS();
+}
+
+
+/* ==============================
+   Helpers
+================================= */
+const isHls = (u) => /\.m3u8($|\?)/i.test(u);
+
+function escapeHtml(text){
+  return String(text)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+
+function setStatus(msg, type='normal'){
+  statusBox.textContent = msg;
+  statusBox.classList.toggle('bad', type === 'bad');
+  statusBox.classList.toggle('ok', type === 'ok');
+}
+
+function clearFallbackTimer(){
+  if (fallbackTimer) {
+    clearTimeout(fallbackTimer);
+    fallbackTimer = null;
+  }
+}
+
+function stopCurrentStream(){
+  clearFallbackTimer();
+  if (_hls) {
+    _hls.destroy();
+    _hls = null;
+  }
+  v.pause();
+  v.removeAttribute('src');
+  v.load();
+  v.onplaying = null;
+  v.onerror = null;
+}
+
+function setActive(id){
+  document.querySelectorAll('.ch').forEach(el => {
+    el.classList.toggle('active', el.dataset.id === id);
+  });
+}
+
+function safeParseUrl(url){
+  try { return new URL(url); } catch (e) { return null; }
+}
+
+function openExternalTab(channel){
+  const win = window.open(channel.url, '_blank', 'noopener,noreferrer');
+  if (win) {
+    setStatus(`เปิด ${channel.name} ในแท็บใหม่แล้ว`, 'ok');
+  } else {
+    setStatus('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup แล้วลองอีกครั้ง', 'bad');
+  }
+}
+
+
+/* ==============================
+   Android Intent
+================================= */
+function buildAndroidIntent(url){
+  const parsed = safeParseUrl(url);
+  if (!parsed) return url;
+  const scheme = parsed.protocol.replace(':','');
+  const hostPath = parsed.host + parsed.pathname + parsed.search + parsed.hash;
+  let intent = `intent://${hostPath}#Intent;`;
+  intent += `scheme=${scheme};`;
+  intent += `action=android.intent.action.VIEW;`;
+  intent += `category=android.intent.category.BROWSABLE;`;
+  intent += `type=application/vnd.apple.mpegurl;`;
+  intent += `S.browser_fallback_url=${encodeURIComponent(url)};`;
+  intent += `end`;
+  return intent;
+}
+
+function openAndroidPlayer(channel){
+  window.location.href = buildAndroidIntent(channel.url);
+}
+
+
+/* ==============================
+   iOS Deep Link helpers
+   แต่ละแอปใช้ URL scheme ต่างกัน:
+   VLC      : vlc://<url>
+   Liftplay : liftplay://<url>
+   Infuse   : infuse://x-callback-url/play?url=<encoded>
+   nPlayer  : nplayer-http:// หรือ nplayer-https://
+================================= */
+function buildVLCUrl(url){
+  // VLC iOS ใช้ vlc:// + url โดยไม่ต้องมี protocol ซ้ำ
+  return 'vlc://' + url;
+}
+
+function buildLiftplayUrl(url){
+  return 'liftplay://' + url;
+}
+
+function buildInfuseUrl(url){
+  return 'infuse://x-callback-url/play?url=' + encodeURIComponent(url);
+}
+
+function buildNPlayerUrl(url){
+  // nPlayer แทน https:// ด้วย nplayer-https:// และ http:// ด้วย nplayer-http://
+  return url.replace(/^https:\/\//i, 'nplayer-https://')
+            .replace(/^http:\/\//i, 'nplayer-http://');
+}
+
+function openIOSDeepLink(deepUrl, fallbackUrl){
+  // ลองเปิด deep link ก่อน ถ้าแอปไม่ติดตั้ง iOS จะไม่ทำอะไร
+  // จึงเปิด tab fallback หลัง delay สั้นๆ เผื่อกรณีแอปไม่มี
+  const start = Date.now();
+  window.location.href = deepUrl;
+
+  setTimeout(() => {
+    // ถ้า deep link ทำงานสำเร็จ iOS จะ background tab นี้ทันที
+    // ถ้ายังอยู่หน้านี้หลัง 1.5s แสดงว่าแอปไม่ติดตั้ง
+    if (Date.now() - start < 2000) {
+      setStatus('ไม่พบแอปนี้ในเครื่อง กรุณาติดตั้งก่อนใช้งาน', 'bad');
+    }
+  }, 1500);
+}
+
+
+/* ==============================
+   Modal
+================================= */
+function openMobileModal(channel, reason=''){
+  selectedChannel = channel;
+  modalLogo.src = channel.logo || '';
+  modalLogo.alt = channel.name || '';
+  modalName.textContent = channel.name || 'External Player';
+
+  if (isIOS()) {
+    // แสดงปุ่ม iOS deep link แทน
+    nonIosButtons.style.display = 'none';
+    iosButtons.style.display = 'block';
+    modalNote.textContent =
+      'เล่นบนหน้าเว็บไซต์ไม่ได้ กรุณาเลือกแอป player ที่ติดตั้งในเครื่องด้านล่าง';
+  } else if (isAndroid()) {
+    nonIosButtons.style.display = '';
+    iosButtons.style.display = 'none';
+    btnMobilePlayer.innerHTML = `
+      เปิดด้วยแอปบน Android
+      <small>ให้ระบบเลือก VLC / Wiseplay / Liftplay หรือแอปที่รองรับ HLS</small>
+    `;
+    modalNote.textContent =
+      'เล่นบนหน้าเว็บไซต์ไม่ได้ กรุณาเปิดด้วยแอป player บน Android';
+  } else {
+    nonIosButtons.style.display = '';
+    iosButtons.style.display = 'none';
+    btnMobilePlayer.innerHTML = `
+      เปิดด้วยแอป Player
+      <small>เลือกแอปที่รองรับ HLS ในเครื่อง</small>
+    `;
+    modalNote.textContent =
+      'เล่นบนหน้าเว็บไซต์ไม่ได้ กรุณาเลือกวิธีเปิดด้านล่าง';
+  }
+
+  playerModal.classList.add('show');
+
+  if (reason) {
+    setStatus(`เล่นบนหน้าเว็บไซต์ไม่ได้: ${reason}`, 'bad');
+  } else {
+    setStatus('เล่นบนหน้าเว็บไซต์ไม่ได้ กรุณาเลือก player ภายนอก', 'bad');
+  }
+}
+
+function closePlayerModal(){
+  playerModal.classList.remove('show');
+}
+
+closeModal.onclick = closePlayerModal;
+
+playerModal.addEventListener('click', (e) => {
+  if (e.target === playerModal) closePlayerModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closePlayerModal();
+});
+
+
+/* ==============================
+   Modal button handlers
+================================= */
+// Non-iOS
+btnMobilePlayer.onclick = () => {
+  if (!selectedChannel) return;
+  if (isAndroid()) {
+    setStatus('กำลังเปิดตัวเลือกแอปบน Android...', 'normal');
+    openAndroidPlayer(selectedChannel);
+    return;
+  }
+  openExternalTab(selectedChannel);
+};
+
+btnOpenTab.onclick = () => {
+  if (!selectedChannel) return;
+  openExternalTab(selectedChannel);
+};
+
+// iOS deep links
+btnVLC.onclick = () => {
+  if (!selectedChannel) return;
+  setStatus('กำลังเปิด VLC...', 'normal');
+  openIOSDeepLink(buildVLCUrl(selectedChannel.url), selectedChannel.url);
+};
+
+btnLiftplay.onclick = () => {
+  if (!selectedChannel) return;
+  setStatus('กำลังเปิด Liftplay...', 'normal');
+  openIOSDeepLink(buildLiftplayUrl(selectedChannel.url), selectedChannel.url);
+};
+
+btnInfuse.onclick = () => {
+  if (!selectedChannel) return;
+  setStatus('กำลังเปิด Infuse...', 'normal');
+  openIOSDeepLink(buildInfuseUrl(selectedChannel.url), selectedChannel.url);
+};
+
+btnNPlayer.onclick = () => {
+  if (!selectedChannel) return;
+  setStatus('กำลังเปิด nPlayer...', 'normal');
+  openIOSDeepLink(buildNPlayerUrl(selectedChannel.url), selectedChannel.url);
+};
+
+btnIOSTab.onclick = () => {
+  if (!selectedChannel) return;
+  openExternalTab(selectedChannel);
+};
+
+
+/* ==============================
+   Fallback behavior
+================================= */
+function showFallback(channel, token, reason=''){
+  if (token !== playToken) return;
+  if (fallbackShown) return;
+  fallbackShown = true;
+  stopCurrentStream();
+
+  if (isDesktop()) {
+    openExternalTab(channel);
+    return;
+  }
+
+  openMobileModal(channel, reason);
+}
+
+function startFallbackWatch(channel, token){
+  clearFallbackTimer();
+  fallbackTimer = setTimeout(() => {
+    const isPlaying = !v.paused && !v.ended && v.readyState >= 2;
+    if (!isPlaying) {
+      showFallback(channel, token, 'โหลดสัญญาณนานเกินไป');
+    }
+  }, 9000);
+}
+
+
+/* ==============================
+   Main play flow
+================================= */
+function playChannel(channel){
+  selectedChannel = channel;
+  closePlayerModal();
+
+  playToken++;
+  const token = playToken;
+  fallbackShown = false;
+
+  setActive(channel.id);
+  stopCurrentStream();
+
+  setStatus(`กำลังลองเล่น ${channel.name} บนหน้าเว็บไซต์...`, 'normal');
+
+  const url = channel.url;
+
+  if (url.startsWith('http://')) {
+    showFallback(channel, token, 'ลิงก์เป็น HTTP จึงเล่นบนเว็บ HTTPS ไม่ได้');
+    return;
+  }
+
+  if (!isHls(url)) {
+    showFallback(channel, token, 'ลิงก์นี้ไม่ใช่ HLS stream');
+    return;
+  }
+
+  startFallbackWatch(channel, token);
+
+  if (v.canPlayType('application/vnd.apple.mpegurl')) {
+    v.src = url;
+
+    v.onplaying = () => {
+      if (token !== playToken) return;
+      clearFallbackTimer();
+      setStatus(`กำลังเล่น ${channel.name}`, 'ok');
+    };
+
+    v.onerror = () => {
+      showFallback(channel, token, 'HTML5 video error');
+    };
+
+    v.play()
+      .then(() => {
+        if (token !== playToken) return;
+        setStatus(`กำลังเล่น ${channel.name}`, 'ok');
+      })
+      .catch(err => {
+        showFallback(channel, token, err.message || 'play error');
+      });
+
+    return;
+  }
+
+  if (window.Hls && Hls.isSupported()) {
+    _hls = new Hls({
+      debug:false,
+      enableWorker:true,
+      lowLatencyMode:true,
+      maxBufferLength:30
+    });
+
+    _hls.loadSource(url);
+    _hls.attachMedia(v);
+
+    _hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      if (token !== playToken) return;
+      setStatus('โหลด playlist สำเร็จ กำลังเล่น...', 'normal');
+      v.play()
+        .then(() => {
+          if (token !== playToken) return;
+          clearFallbackTimer();
+          setStatus(`กำลังเล่น ${channel.name}`, 'ok');
+        })
+        .catch(err => {
+          showFallback(channel, token, err.message || 'autoplay error');
+        });
+    });
+
+    _hls.on(Hls.Events.ERROR, (event, data) => {
+      if (token !== playToken) return;
+      console.warn('HLS ERROR:', data);
+      const details = data.details || 'unknown';
+      const type = data.type || 'unknown';
+      const shouldFallback =
+        data.fatal ||
+        details.includes('manifestLoadError') ||
+        details.includes('levelLoadError') ||
+        details.includes('fragLoadError') ||
+        details.includes('bufferStalledError') ||
+        details.includes('internalException');
+
+      if (shouldFallback) {
+        showFallback(channel, token, `${type} / ${details}`);
+      } else {
+        setStatus(`HLS warning: ${type} / ${details}`, 'normal');
+      }
+    });
+
+    v.addEventListener('playing', () => {
+      if (token !== playToken) return;
+      clearFallbackTimer();
+      setStatus(`กำลังเล่น ${channel.name}`, 'ok');
+    }, { once:true });
+
+    return;
+  }
+
+  showFallback(channel, token, 'เบราว์เซอร์นี้ไม่รองรับ HLS');
+}
+
+
+/* ==============================
+   Render channels + auto-play first
+================================= */
+function renderGrid(){
+  gridSports.innerHTML = '';
+
+  sports.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'ch';
+    d.dataset.id = c.id;
+    d.innerHTML = `
+      <img src="${escapeHtml(c.logo)}" alt="${escapeHtml(c.name)}">
+      <div class="name">${escapeHtml(c.name)}</div>
+    `;
+    d.onclick = () => playChannel(c);
+    gridSports.appendChild(d);
+  });
+
+  // Auto-play channel 1 on page load
+  if (sports.length > 0) {
+    playChannel(sports[0]);
+  }
+}
+
+renderGrid();
+</script>
+</body>
+</html>
