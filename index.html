@@ -2,159 +2,545 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IPTV by BK-16</title>
 
 <style>
   :root{
-    --bg1:#0b1220;
-    --bg2:#08101d;
-    --panel:#0f172a;
-    --border:#334155;
-    --muted:#9fb2c7;
-    --brand1:#17c1d6;
-    --brand2:#31d17b;
-    --bad:#fca5a5;
-    --warn:#facc15;
-    --ok:#86efac;
+    --bg:#050816;
+    --bg-soft:#0b1022;
+    --card:#11182c;
+    --card-2:#151f36;
+    --line:rgba(255,255,255,.12);
+    --line-strong:rgba(255,255,255,.22);
+    --text:#f8fafc;
+    --muted:#9caec4;
+    --brand:#18c7dd;
+    --brand-2:#34d399;
+    --brand-3:#7c3aed;
+    --danger:#fca5a5;
+    --warning:#fde68a;
+    --success:#86efac;
+    --shadow:0 24px 80px rgba(0,0,0,.42);
+    --radius-xl:26px;
+    --radius-lg:20px;
+    --radius-md:14px;
   }
 
   *{box-sizing:border-box}
 
+  html{scroll-behavior:smooth}
+
   body{
     margin:0;
-    font-family:Inter,system-ui,Arial,sans-serif;
-    background:linear-gradient(180deg,var(--bg1),var(--bg2));
-    color:#fff;
+    min-height:100vh;
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 12% 8%, rgba(24,199,221,.24), transparent 28rem),
+      radial-gradient(circle at 90% 0%, rgba(52,211,153,.16), transparent 26rem),
+      radial-gradient(circle at 50% 100%, rgba(124,58,237,.18), transparent 30rem),
+      linear-gradient(180deg,#050816 0%,#07101f 46%,#050816 100%);
+    overflow-x:hidden;
   }
 
-  header{
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.75), transparent 75%);
+  }
+
+  button,input{font:inherit}
+
+  img{max-width:100%}
+
+  .app-shell{
+    width:min(1240px, calc(100% - 28px));
+    margin:0 auto;
+  }
+
+  .topbar{
     position:sticky;
     top:0;
-    z-index:10;
-    background:rgba(0,0,0,.35);
-    backdrop-filter:blur(6px);
-    border-bottom:1px solid rgba(255,255,255,.06);
+    z-index:50;
+    background:rgba(5,8,22,.72);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    backdrop-filter:blur(16px);
   }
 
-  .bar{
-    max-width:1200px;
+  .topbar-inner{
+    width:min(1240px, calc(100% - 28px));
     margin:0 auto;
-    padding:14px 16px;
-    display:flex;
+    min-height:84px;
+    display:grid;
+    grid-template-columns:1fr auto;
     align-items:center;
-    justify-content:center;
-    gap:16px;
+    gap:18px;
   }
 
   .brand{
     display:flex;
     align-items:center;
     gap:14px;
+    min-width:0;
   }
 
-  .brand img{
-    width:64px;
-    height:64px;
+  .brand-logo{
+    width:62px;
+    height:62px;
+    border-radius:18px;
+    padding:7px;
+    background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(255,255,255,.75));
+    box-shadow:0 12px 30px rgba(0,0,0,.28);
     object-fit:contain;
-    border-radius:10px;
-    display:block;
   }
 
-  .title{
-    font-weight:900;
-    letter-spacing:.3px;
-    font-size:clamp(22px,4vw,34px);
-    background:linear-gradient(90deg,var(--brand1),var(--brand2));
+  .brand-copy{min-width:0}
+
+  .eyebrow{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--muted);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+
+  .pulse{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--brand-2);
+    box-shadow:0 0 0 0 rgba(52,211,153,.8);
+    animation:pulse 1.7s infinite;
+  }
+
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(52,211,153,.75)}
+    70%{box-shadow:0 0 0 10px rgba(52,211,153,0)}
+    100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}
+  }
+
+  .brand-title{
+    margin-top:2px;
+    font-weight:950;
+    line-height:1;
+    letter-spacing:-.04em;
+    font-size:clamp(26px,4vw,42px);
+    background:linear-gradient(90deg,#fff 0%,#bdf7ff 36%,#8ff4c7 100%);
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .top-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    min-height:38px;
+    padding:0 14px;
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;
+    color:#dff8ff;
+    background:rgba(255,255,255,.06);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+    font-size:13px;
+    font-weight:800;
+    white-space:nowrap;
   }
 
   main{
-    max-width:1200px;
-    margin:16px auto;
-    padding:0 12px 24px;
+    padding:26px 0 32px;
   }
 
-  .player{
+  .hero{
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) 350px;
+    gap:18px;
+    align-items:stretch;
+  }
+
+  .player-card,
+  .side-card,
+  .toolbar,
+  .channel-card,
+  .modal{
+    background:linear-gradient(180deg, rgba(255,255,255,.095), rgba(255,255,255,.045));
+    border:1px solid rgba(255,255,255,.13);
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(16px);
+  }
+
+  .player-card{
+    position:relative;
+    border-radius:var(--radius-xl);
+    overflow:hidden;
+  }
+
+  .player-top{
+    position:absolute;
+    z-index:2;
+    inset:0 0 auto;
+    min-height:62px;
+    padding:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(0,0,0,.64), rgba(0,0,0,0));
+  }
+
+  .now-mini{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+  }
+
+  .now-mini img{
+    width:42px;
+    height:42px;
+    border-radius:13px;
+    object-fit:contain;
+    background:#fff;
+    padding:5px;
+  }
+
+  .now-mini strong{
+    display:block;
+    max-width:50vw;
+    font-size:15px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .now-mini span{
+    display:block;
+    margin-top:2px;
+    color:#d1d5db;
+    font-size:12px;
+  }
+
+  .live-badge{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:7px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:900;
+    color:#06141d;
+    background:linear-gradient(90deg,var(--brand),var(--brand-2));
+    box-shadow:0 10px 30px rgba(24,199,221,.18);
+  }
+
+  .live-badge::before{
+    content:"";
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#06141d;
+  }
+
+  .player-frame{
     width:100%;
     aspect-ratio:16/9;
     background:#000;
-    border-radius:16px;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,.12);
   }
 
   video{
     width:100%;
     height:100%;
+    display:block;
     background:#000;
     outline:none;
   }
 
-  #status{
-    min-height:24px;
-    margin-top:8px;
-    text-align:center;
-    font-size:13px;
-    color:var(--muted);
+  .side-card{
+    border-radius:var(--radius-xl);
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    gap:16px;
+    overflow:hidden;
+    position:relative;
   }
 
-  #status.bad{color:var(--bad)}
-  #status.ok{color:var(--ok)}
+  .side-card::after{
+    content:"";
+    position:absolute;
+    right:-60px;
+    bottom:-70px;
+    width:190px;
+    height:190px;
+    border-radius:50%;
+    background:rgba(24,199,221,.14);
+    filter:blur(6px);
+  }
 
-  .grid{
+  .side-content{
+    position:relative;
+    z-index:1;
+  }
+
+  .section-label{
+    margin:0 0 12px;
+    color:var(--muted);
+    font-size:12px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:900;
+  }
+
+  .featured-logo{
+    width:92px;
+    height:92px;
+    padding:9px;
+    border-radius:24px;
+    object-fit:contain;
+    background:#fff;
+    box-shadow:0 16px 38px rgba(0,0,0,.28);
+  }
+
+  .featured-title{
+    margin:16px 0 8px;
+    font-size:clamp(22px,3vw,30px);
+    line-height:1.05;
+    letter-spacing:-.03em;
+  }
+
+  #status{
+    min-height:42px;
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.45;
+  }
+
+  #status.bad{color:var(--danger)}
+  #status.ok{color:var(--success)}
+
+  .side-actions{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .btn{
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:14px;
+    background:rgba(255,255,255,.07);
+    color:#fff;
+    min-height:44px;
+    padding:10px 13px;
+    cursor:pointer;
+    font-weight:900;
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+
+  .btn:hover{
+    transform:translateY(-1px);
+    border-color:rgba(24,199,221,.5);
+    background:rgba(24,199,221,.12);
+  }
+
+  .btn.primary{
+    border-color:rgba(24,199,221,.45);
+    background:linear-gradient(90deg,rgba(24,199,221,.22),rgba(52,211,153,.16));
+  }
+
+  .toolbar{
+    margin-top:18px;
+    border-radius:var(--radius-lg);
+    padding:14px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:12px;
+    align-items:center;
+  }
+
+  .search-wrap{
+    position:relative;
+  }
+
+  .search-wrap::before{
+    content:"⌕";
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--muted);
+    font-size:20px;
+    line-height:1;
+  }
+
+  #searchInput{
+    width:100%;
+    height:48px;
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:999px;
+    padding:0 18px 0 44px;
+    color:#fff;
+    background:rgba(0,0,0,.2);
+    outline:none;
+  }
+
+  #searchInput:focus{
+    border-color:rgba(24,199,221,.6);
+    box-shadow:0 0 0 4px rgba(24,199,221,.12);
+  }
+
+  #searchInput::placeholder{color:#7f8fa4}
+
+  .count{
+    color:var(--muted);
+    font-size:13px;
+    white-space:nowrap;
+  }
+
+  .channel-grid{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:14px;
+  }
+
+  .channel-card{
+    position:relative;
+    min-height:188px;
+    border-radius:var(--radius-lg);
+    padding:13px;
+    cursor:pointer;
+    overflow:hidden;
+    transition:transform .16s ease, border-color .16s ease, background .16s ease;
+  }
+
+  .channel-card::before{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    opacity:0;
+    background:radial-gradient(circle at 50% 0%, rgba(24,199,221,.26), transparent 70%);
+    transition:opacity .16s ease;
+  }
+
+  .channel-card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(24,199,221,.46);
+    background:linear-gradient(180deg, rgba(24,199,221,.11), rgba(255,255,255,.045));
+  }
+
+  .channel-card:hover::before{opacity:1}
+
+  .channel-card.active{
+    border-color:rgba(52,211,153,.75);
+    box-shadow:0 0 0 2px rgba(52,211,153,.22), var(--shadow);
+  }
+
+  .channel-card.active .play-dot{
+    background:var(--brand-2);
+    color:#05130c;
+  }
+
+  .logo-box{
+    position:relative;
+    z-index:1;
+    height:94px;
+    border-radius:17px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,255,255,.82));
+    border:1px solid rgba(255,255,255,.2);
+  }
+
+  .logo-box img{
+    width:100%;
+    height:78px;
+    object-fit:contain;
+    padding:8px;
+  }
+
+  .channel-meta{
+    position:relative;
+    z-index:1;
     display:flex;
-    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
     gap:10px;
     margin-top:12px;
-    justify-content:center;
   }
 
-  .ch{
-    position:relative;
-    width:150px;
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    cursor:pointer;
+  .channel-name{
+    min-height:42px;
+    color:#edf6ff;
+    font-weight:900;
+    font-size:14px;
+    line-height:1.35;
+  }
+
+  .channel-tag{
+    margin-top:8px;
+    display:inline-flex;
+    max-width:100%;
+    padding:5px 9px;
+    border-radius:999px;
+    color:#cfe8ff;
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.09);
+    font-size:11px;
+    font-weight:800;
+  }
+
+  .play-dot{
+    flex:0 0 auto;
+    width:32px;
+    height:32px;
+    display:grid;
+    place-items:center;
+    border-radius:999px;
+    background:rgba(255,255,255,.1);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.12);
+  }
+
+  .empty{
+    grid-column:1 / -1;
+    border:1px dashed rgba(255,255,255,.2);
+    border-radius:var(--radius-lg);
+    padding:34px 18px;
     text-align:center;
-    padding:8px;
-    transition:transform .15s ease, background .15s ease, border-color .15s ease;
-  }
-
-  .ch:hover{
-    transform:translateY(-1px);
-    background:#0b1220;
-    border-color:rgba(23,193,214,.55);
-  }
-
-  .ch.active{
-    outline:2px solid var(--brand1);
-    box-shadow:0 0 0 3px rgba(23,193,214,.25) inset;
-  }
-
-  .ch img{
-    width:100%;
-    height:84px;
-    object-fit:contain;
-    display:block;
-    margin:0 auto 6px;
-  }
-
-  .name{
-    font-size:13px;
-    color:#dbeafe;
-    min-height:34px;
+    color:var(--muted);
+    background:rgba(255,255,255,.035);
   }
 
   .hint{
-    margin:10px 0 0;
-    text-align:center;
-    font-size:13px;
+    margin:18px 0 0;
     color:var(--muted);
-    line-height:1.5;
+    font-size:13px;
+    line-height:1.65;
+    text-align:center;
   }
 
   /* ===== Player Modal ===== */
@@ -165,21 +551,16 @@
     display:none;
     align-items:center;
     justify-content:center;
-    padding:16px;
-    background:rgba(0,0,0,.62);
-    backdrop-filter:blur(5px);
+    padding:18px;
+    background:rgba(0,0,0,.66);
+    backdrop-filter:blur(10px);
   }
 
-  .modal-backdrop.show{
-    display:flex;
-  }
+  .modal-backdrop.show{display:flex}
 
   .modal{
-    width:min(520px,100%);
-    background:linear-gradient(180deg,#111c33,#0b1220);
-    border:1px solid rgba(255,255,255,.16);
-    border-radius:18px;
-    box-shadow:0 20px 80px rgba(0,0,0,.45);
+    width:min(560px,100%);
+    border-radius:24px;
     overflow:hidden;
   }
 
@@ -187,140 +568,174 @@
     display:flex;
     gap:12px;
     align-items:center;
-    padding:14px 16px;
+    padding:16px;
     border-bottom:1px solid rgba(255,255,255,.08);
+    background:rgba(0,0,0,.12);
   }
 
   .modal-head img{
-    width:58px;
-    height:58px;
+    width:60px;
+    height:60px;
     object-fit:contain;
-    border-radius:10px;
+    border-radius:16px;
     background:#fff;
-    padding:4px;
+    padding:6px;
   }
 
-  .modal-title{
-    flex:1;
-  }
+  .modal-title{flex:1;min-width:0}
 
   .modal-title strong{
     display:block;
-    font-size:17px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:18px;
   }
 
   .modal-title span{
     display:block;
-    margin-top:3px;
-    font-size:12px;
+    margin-top:4px;
     color:var(--muted);
+    font-size:12px;
   }
 
   .close-btn{
-    width:34px;
-    height:34px;
+    width:38px;
+    height:38px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.16);
-    background:#0f172a;
+    background:rgba(0,0,0,.2);
     color:#fff;
     cursor:pointer;
-    font-size:18px;
+    font-size:21px;
   }
 
-  .modal-body{
-    padding:14px 16px 16px;
-  }
+  .modal-body{padding:16px}
 
   .modal-note{
     margin:0 0 12px;
-    padding:10px 12px;
-    border-radius:12px;
-    background:rgba(250,204,21,.10);
-    border:1px solid rgba(250,204,21,.25);
-    color:#fde68a;
+    padding:12px;
+    border-radius:16px;
+    color:var(--warning);
+    background:rgba(253,230,138,.09);
+    border:1px solid rgba(253,230,138,.22);
     font-size:13px;
-    line-height:1.5;
+    line-height:1.55;
   }
 
   .btn-grid{
     display:grid;
     grid-template-columns:1fr;
-    gap:9px;
+    gap:10px;
   }
 
-  .action-btn{
-    width:100%;
-    border:1px solid rgba(255,255,255,.12);
-    background:#111c33;
+  .action-btn,.ios-app-btn{
+    border:1px solid rgba(255,255,255,.13);
+    background:rgba(255,255,255,.065);
     color:#fff;
-    padding:12px 13px;
-    border-radius:12px;
+    padding:13px;
+    border-radius:15px;
     cursor:pointer;
     text-align:left;
-    font-weight:900;
-    transition:transform .12s ease, background .12s ease;
+    font-weight:950;
+    transition:transform .14s ease, background .14s ease, border-color .14s ease;
   }
 
-  .action-btn:hover{
+  .action-btn:hover,.ios-app-btn:hover{
     transform:translateY(-1px);
-    background:#152541;
+    border-color:rgba(24,199,221,.45);
+    background:rgba(24,199,221,.11);
   }
 
-  .action-btn small{
+  .action-btn small,.ios-app-btn small{
     display:block;
-    margin-top:3px;
+    margin-top:4px;
     color:var(--muted);
     font-weight:500;
     line-height:1.35;
   }
 
   .action-btn.primary{
-    border-color:rgba(23,193,214,.45);
-    background:linear-gradient(90deg,rgba(23,193,214,.22),rgba(49,209,123,.18));
+    border-color:rgba(24,199,221,.46);
+    background:linear-gradient(90deg,rgba(24,199,221,.2),rgba(52,211,153,.14));
   }
 
-  .action-btn.warn{
-    border-color:rgba(250,204,21,.35);
-  }
+  .action-btn.warn{border-color:rgba(253,230,138,.25)}
 
-  /* iOS deep-link button grid */
   .ios-btn-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:9px;
-    margin-top:9px;
+    gap:10px;
+    margin-top:10px;
   }
 
-  .ios-app-btn{
-    border:1px solid rgba(255,255,255,.12);
-    background:#111c33;
-    color:#fff;
-    padding:11px 10px;
-    border-radius:12px;
-    cursor:pointer;
+  .ios-app-btn{text-align:center}
+
+  .footer{
+    margin-top:18px;
+    padding:0 4px;
+    color:#718096;
+    font-size:12px;
     text-align:center;
-    font-weight:700;
-    font-size:14px;
-    transition:transform .12s ease, background .12s ease;
+    line-height:1.6;
   }
 
-  .ios-app-btn:hover{
-    transform:translateY(-1px);
-    background:#152541;
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr}
+    .side-card{min-height:auto}
+    .featured-logo{width:76px;height:76px;border-radius:20px}
+    .side-actions{grid-template-columns:1fr 1fr}
   }
 
-  .ios-app-btn small{
-    display:block;
-    margin-top:2px;
-    color:var(--muted);
-    font-weight:400;
-    font-size:11px;
+  @media (max-width:680px){
+    .topbar-inner{
+      grid-template-columns:1fr;
+      gap:10px;
+      padding:12px 0;
+    }
+
+    .top-actions{display:none}
+
+    .brand-logo{width:54px;height:54px;border-radius:16px}
+    .brand-title{font-size:28px}
+
+    main{padding-top:16px}
+
+    .player-top{min-height:56px;padding:10px}
+    .now-mini img{width:36px;height:36px;border-radius:11px}
+    .now-mini strong{max-width:62vw;font-size:13px}
+    .live-badge{font-size:11px;padding:6px 8px}
+
+    .toolbar{grid-template-columns:1fr}
+    .count{text-align:center}
+
+    .channel-grid{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:11px;
+    }
+
+    .channel-card{
+      min-height:170px;
+      padding:10px;
+      border-radius:17px;
+    }
+
+    .logo-box{
+      height:82px;
+      border-radius:14px;
+    }
+
+    .logo-box img{height:68px}
+
+    .channel-name{font-size:13px;min-height:38px}
+    .channel-tag{font-size:10px}
+    .play-dot{width:30px;height:30px}
+
+    .side-actions{grid-template-columns:1fr}
   }
 
   @media (min-width:520px){
-    .btn-grid{
-      grid-template-columns:1fr 1fr;
-    }
+    .btn-grid{grid-template-columns:1fr 1fr}
   }
 </style>
 
@@ -328,30 +743,75 @@
 </head>
 
 <body>
-<header>
-  <div class="bar">
+<header class="topbar">
+  <div class="topbar-inner">
     <div class="brand">
-      <img alt="BK-16" src="https://dl.dropbox.com/scl/fi/nx2b6zyo5cp4hwgtit12b/22-11-66-01-33-23.png?rlkey=khnfawin5mmaxg1vxq5l7nro3&dl=0">
-      <div class="title">IPTV by BK-16</div>
+      <img class="brand-logo" alt="BK-16" src="https://dl.dropbox.com/scl/fi/nx2b6zyo5cp4hwgtit12b/22-11-66-01-33-23.png?rlkey=khnfawin5mmaxg1vxq5l7nro3&dl=0">
+      <div class="brand-copy">
+        <div class="eyebrow"><span class="pulse"></span> Live Streaming Hub</div>
+        <div class="brand-title">IPTV by BK-16</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div class="chip">Sports • HLS • Mobile ready</div>
     </div>
   </div>
 </header>
 
-<main>
-  <div class="player">
-    <video id="v" controls playsinline muted></video>
-  </div>
+<main class="app-shell">
+  <section class="hero">
+    <div class="player-card">
+      <div class="player-top">
+        <div class="now-mini">
+          <img id="nowLogoMini" src="" alt="">
+          <div>
+            <strong id="nowNameMini">กำลังโหลดช่องแรก...</strong>
+            <span id="nowGroupMini">BK-16 Player</span>
+          </div>
+        </div>
+        <div class="live-badge">LIVE</div>
+      </div>
 
-  <div id="status">กำลังโหลดช่องแรก...</div>
+      <div class="player-frame">
+        <video id="v" controls playsinline muted></video>
+      </div>
+    </div>
 
-  <div id="grid-sports" class="grid"></div>
+    <aside class="side-card">
+      <div class="side-content">
+        <p class="section-label">Now Playing</p>
+        <img id="featuredLogo" class="featured-logo" src="" alt="">
+        <h1 id="featuredName" class="featured-title">IPTV by BK-16</h1>
+        <p id="status">กำลังโหลดช่องแรก...</p>
+      </div>
+
+      <div class="side-actions">
+        <button class="btn primary" id="btnRestart">เล่นช่องแรก</button>
+        <button class="btn" id="btnExternalNow">เปิดภายนอก</button>
+      </div>
+    </aside>
+  </section>
+
+  <section class="toolbar">
+    <div class="search-wrap">
+      <input id="searchInput" type="search" autocomplete="off" placeholder="ค้นหาช่อง เช่น beIN, True Sport, FIFA, Monomax">
+    </div>
+    <div class="count" id="countText">กำลังเตรียมรายการช่อง...</div>
+  </section>
+
+  <section id="grid-sports" class="channel-grid"></section>
 
   <p class="hint">
-    * คลิกโลโก้ช่องเพื่อเล่นทันที &nbsp;|&nbsp; อัพเดตล่าสุด by BK-16
+    คลิกการ์ดช่องเพื่อเล่นทันที • ถ้าเล่นบนหน้าเว็บไม่ได้ ระบบจะช่วยเปิดผ่าน player ภายนอกตามอุปกรณ์
   </p>
+
+  <div class="footer">
+    ใช้กับลิงก์สตรีมที่คุณมีสิทธิ์เผยแพร่หรือรับชมเท่านั้น • Design refresh by BK-16
+  </div>
 </main>
 
-<!-- ===== Mobile fallback modal ===== -->
+<!-- ===== Mobile / External Player Fallback Modal ===== -->
 <div id="playerModal" class="modal-backdrop">
   <div class="modal">
     <div class="modal-head">
@@ -366,11 +826,10 @@
     <div class="modal-body">
       <p class="modal-note" id="modalNote"></p>
 
-      <!-- Android / Desktop buttons (shown when NOT iOS) -->
       <div id="nonIosButtons" class="btn-grid">
         <button class="action-btn primary" id="btnMobilePlayer">
           เปิดด้วยแอป Player
-          <small id="btnMobilePlayerSmall">เลือก VLC / Wiseplay / Liftplay หรือแอปที่รองรับ HLS</small>
+          <small>เลือก VLC / Wiseplay / Liftplay หรือแอปที่รองรับ HLS</small>
         </button>
         <button class="action-btn warn" id="btnOpenTab">
           เปิดแท็บใหม่
@@ -378,7 +837,6 @@
         </button>
       </div>
 
-      <!-- iOS deep-link buttons (shown only on iOS) -->
       <div id="iosButtons" style="display:none">
         <p style="margin:0 0 8px;font-size:13px;color:var(--muted);">เลือกแอปที่ติดตั้งในเครื่อง:</p>
         <div class="ios-btn-grid">
@@ -399,7 +857,7 @@
             <small>nplayer-http://</small>
           </button>
         </div>
-        <button class="action-btn warn" id="btnIOSTab" style="margin-top:9px;width:100%;">
+        <button class="action-btn warn" id="btnIOSTab" style="margin-top:10px;width:100%;">
           เปิดแท็บใหม่
           <small>ถ้าไม่มีแอปข้างต้น ให้ลองเปิดลิงก์ในแท็บใหม่</small>
         </button>
@@ -411,6 +869,7 @@
 <script>
 /* ==============================
    Channel list
+   ใช้รายละเอียดเดิม: id, name, logo, url
 ================================= */
 const sports = [
 
@@ -547,18 +1006,28 @@ const sports = [
 const v = document.getElementById('v');
 const gridSports = document.getElementById('grid-sports');
 const statusBox = document.getElementById('status');
+const searchInput = document.getElementById('searchInput');
+const countText = document.getElementById('countText');
+
+const featuredLogo = document.getElementById('featuredLogo');
+const featuredName = document.getElementById('featuredName');
+const nowLogoMini = document.getElementById('nowLogoMini');
+const nowNameMini = document.getElementById('nowNameMini');
+const nowGroupMini = document.getElementById('nowGroupMini');
+
+const btnRestart = document.getElementById('btnRestart');
+const btnExternalNow = document.getElementById('btnExternalNow');
 
 const playerModal = document.getElementById('playerModal');
 const modalLogo = document.getElementById('modalLogo');
 const modalName = document.getElementById('modalName');
-const modalNote = document.getElementById('modalNote');
 const closeModal = document.getElementById('closeModal');
+const modalNote = document.getElementById('modalNote');
 
 const nonIosButtons = document.getElementById('nonIosButtons');
 const iosButtons = document.getElementById('iosButtons');
 
 const btnMobilePlayer = document.getElementById('btnMobilePlayer');
-const btnMobilePlayerSmall = document.getElementById('btnMobilePlayerSmall');
 const btnOpenTab = document.getElementById('btnOpenTab');
 const btnIOSTab = document.getElementById('btnIOSTab');
 
@@ -572,6 +1041,7 @@ let selectedChannel = null;
 let fallbackTimer = null;
 let playToken = 0;
 let fallbackShown = false;
+let activeKey = null;
 
 
 /* ==============================
@@ -596,6 +1066,26 @@ function isDesktop(){
 ================================= */
 const isHls = (u) => /\.m3u8($|\?)/i.test(u);
 
+function normalizeChannels(){
+  return sports.map((channel, index) => ({
+    ...channel,
+    _index:index,
+    _key:`${channel.id || 'channel'}-${index}`,
+    _group:getGroup(channel)
+  }));
+}
+
+function getGroup(channel){
+  const text = `${channel.name || ''} ${channel.id || ''}`.toLowerCase();
+  if (text.includes('world cup') || text.includes('fifa')) return 'FIFA / World Cup';
+  if (text.includes('mono')) return 'MonoMax';
+  if (text.includes('bein')) return 'beIN Sports';
+  if (text.includes('true') || text.includes('spotv')) return 'True / SPOTV';
+  if (text.includes('red bull')) return 'Red Bull TV';
+  if (text.includes('fox')) return 'Fox Sports';
+  return 'Sports Channel';
+}
+
 function escapeHtml(text){
   return String(text)
     .replaceAll('&','&amp;')
@@ -611,6 +1101,21 @@ function setStatus(msg, type='normal'){
   statusBox.classList.toggle('ok', type === 'ok');
 }
 
+function updateNowPlaying(channel){
+  const logo = channel?.logo || '';
+  const name = channel?.name || 'IPTV by BK-16';
+  const group = channel?._group || getGroup(channel || {});
+
+  featuredLogo.src = logo;
+  featuredLogo.alt = name;
+  featuredName.textContent = name;
+
+  nowLogoMini.src = logo;
+  nowLogoMini.alt = name;
+  nowNameMini.textContent = name;
+  nowGroupMini.textContent = group;
+}
+
 function clearFallbackTimer(){
   if (fallbackTimer) {
     clearTimeout(fallbackTimer);
@@ -620,10 +1125,12 @@ function clearFallbackTimer(){
 
 function stopCurrentStream(){
   clearFallbackTimer();
+
   if (_hls) {
     _hls.destroy();
     _hls = null;
   }
+
   v.pause();
   v.removeAttribute('src');
   v.load();
@@ -631,9 +1138,10 @@ function stopCurrentStream(){
   v.onerror = null;
 }
 
-function setActive(id){
-  document.querySelectorAll('.ch').forEach(el => {
-    el.classList.toggle('active', el.dataset.id === id);
+function setActive(key){
+  activeKey = key;
+  document.querySelectorAll('.channel-card').forEach(el => {
+    el.classList.toggle('active', el.dataset.key === key);
   });
 }
 
@@ -642,7 +1150,9 @@ function safeParseUrl(url){
 }
 
 function openExternalTab(channel){
+  if (!channel) return;
   const win = window.open(channel.url, '_blank', 'noopener,noreferrer');
+
   if (win) {
     setStatus(`เปิด ${channel.name} ในแท็บใหม่แล้ว`, 'ok');
   } else {
@@ -657,8 +1167,10 @@ function openExternalTab(channel){
 function buildAndroidIntent(url){
   const parsed = safeParseUrl(url);
   if (!parsed) return url;
+
   const scheme = parsed.protocol.replace(':','');
   const hostPath = parsed.host + parsed.pathname + parsed.search + parsed.hash;
+
   let intent = `intent://${hostPath}#Intent;`;
   intent += `scheme=${scheme};`;
   intent += `action=android.intent.action.VIEW;`;
@@ -666,6 +1178,7 @@ function buildAndroidIntent(url){
   intent += `type=application/vnd.apple.mpegurl;`;
   intent += `S.browser_fallback_url=${encodeURIComponent(url)};`;
   intent += `end`;
+
   return intent;
 }
 
@@ -675,15 +1188,9 @@ function openAndroidPlayer(channel){
 
 
 /* ==============================
-   iOS Deep Link helpers
-   แต่ละแอปใช้ URL scheme ต่างกัน:
-   VLC      : vlc://<url>
-   Liftplay : liftplay://<url>
-   Infuse   : infuse://x-callback-url/play?url=<encoded>
-   nPlayer  : nplayer-http:// หรือ nplayer-https://
+   iOS Deep Links
 ================================= */
 function buildVLCUrl(url){
-  // VLC iOS ใช้ vlc:// + url โดยไม่ต้องมี protocol ซ้ำ
   return 'vlc://' + url;
 }
 
@@ -696,20 +1203,15 @@ function buildInfuseUrl(url){
 }
 
 function buildNPlayerUrl(url){
-  // nPlayer แทน https:// ด้วย nplayer-https:// และ http:// ด้วย nplayer-http://
   return url.replace(/^https:\/\//i, 'nplayer-https://')
             .replace(/^http:\/\//i, 'nplayer-http://');
 }
 
-function openIOSDeepLink(deepUrl, fallbackUrl){
-  // ลองเปิด deep link ก่อน ถ้าแอปไม่ติดตั้ง iOS จะไม่ทำอะไร
-  // จึงเปิด tab fallback หลัง delay สั้นๆ เผื่อกรณีแอปไม่มี
+function openIOSDeepLink(deepUrl){
   const start = Date.now();
   window.location.href = deepUrl;
 
   setTimeout(() => {
-    // ถ้า deep link ทำงานสำเร็จ iOS จะ background tab นี้ทันที
-    // ถ้ายังอยู่หน้านี้หลัง 1.5s แสดงว่าแอปไม่ติดตั้ง
     if (Date.now() - start < 2000) {
       setStatus('ไม่พบแอปนี้ในเครื่อง กรุณาติดตั้งก่อนใช้งาน', 'bad');
     }
@@ -727,7 +1229,6 @@ function openMobileModal(channel, reason=''){
   modalName.textContent = channel.name || 'External Player';
 
   if (isIOS()) {
-    // แสดงปุ่ม iOS deep link แทน
     nonIosButtons.style.display = 'none';
     iosButtons.style.display = 'block';
     modalNote.textContent =
@@ -779,14 +1280,15 @@ document.addEventListener('keydown', (e) => {
 /* ==============================
    Modal button handlers
 ================================= */
-// Non-iOS
 btnMobilePlayer.onclick = () => {
   if (!selectedChannel) return;
+
   if (isAndroid()) {
     setStatus('กำลังเปิดตัวเลือกแอปบน Android...', 'normal');
     openAndroidPlayer(selectedChannel);
     return;
   }
+
   openExternalTab(selectedChannel);
 };
 
@@ -795,32 +1297,41 @@ btnOpenTab.onclick = () => {
   openExternalTab(selectedChannel);
 };
 
-// iOS deep links
 btnVLC.onclick = () => {
   if (!selectedChannel) return;
   setStatus('กำลังเปิด VLC...', 'normal');
-  openIOSDeepLink(buildVLCUrl(selectedChannel.url), selectedChannel.url);
+  openIOSDeepLink(buildVLCUrl(selectedChannel.url));
 };
 
 btnLiftplay.onclick = () => {
   if (!selectedChannel) return;
   setStatus('กำลังเปิด Liftplay...', 'normal');
-  openIOSDeepLink(buildLiftplayUrl(selectedChannel.url), selectedChannel.url);
+  openIOSDeepLink(buildLiftplayUrl(selectedChannel.url));
 };
 
 btnInfuse.onclick = () => {
   if (!selectedChannel) return;
   setStatus('กำลังเปิด Infuse...', 'normal');
-  openIOSDeepLink(buildInfuseUrl(selectedChannel.url), selectedChannel.url);
+  openIOSDeepLink(buildInfuseUrl(selectedChannel.url));
 };
 
 btnNPlayer.onclick = () => {
   if (!selectedChannel) return;
   setStatus('กำลังเปิด nPlayer...', 'normal');
-  openIOSDeepLink(buildNPlayerUrl(selectedChannel.url), selectedChannel.url);
+  openIOSDeepLink(buildNPlayerUrl(selectedChannel.url));
 };
 
 btnIOSTab.onclick = () => {
+  if (!selectedChannel) return;
+  openExternalTab(selectedChannel);
+};
+
+btnRestart.onclick = () => {
+  const first = normalizeChannels()[0];
+  if (first) playChannel(first);
+};
+
+btnExternalNow.onclick = () => {
   if (!selectedChannel) return;
   openExternalTab(selectedChannel);
 };
@@ -832,6 +1343,7 @@ btnIOSTab.onclick = () => {
 function showFallback(channel, token, reason=''){
   if (token !== playToken) return;
   if (fallbackShown) return;
+
   fallbackShown = true;
   stopCurrentStream();
 
@@ -845,8 +1357,10 @@ function showFallback(channel, token, reason=''){
 
 function startFallbackWatch(channel, token){
   clearFallbackTimer();
+
   fallbackTimer = setTimeout(() => {
     const isPlaying = !v.paused && !v.ended && v.readyState >= 2;
+
     if (!isPlaying) {
       showFallback(channel, token, 'โหลดสัญญาณนานเกินไป');
     }
@@ -865,7 +1379,8 @@ function playChannel(channel){
   const token = playToken;
   fallbackShown = false;
 
-  setActive(channel.id);
+  setActive(channel._key);
+  updateNowPlaying(channel);
   stopCurrentStream();
 
   setStatus(`กำลังลองเล่น ${channel.name} บนหน้าเว็บไซต์...`, 'normal');
@@ -922,7 +1437,9 @@ function playChannel(channel){
 
     _hls.on(Hls.Events.MANIFEST_PARSED, () => {
       if (token !== playToken) return;
+
       setStatus('โหลด playlist สำเร็จ กำลังเล่น...', 'normal');
+
       v.play()
         .then(() => {
           if (token !== playToken) return;
@@ -936,7 +1453,9 @@ function playChannel(channel){
 
     _hls.on(Hls.Events.ERROR, (event, data) => {
       if (token !== playToken) return;
+
       console.warn('HLS ERROR:', data);
+
       const details = data.details || 'unknown';
       const type = data.type || 'unknown';
       const shouldFallback =
@@ -968,30 +1487,81 @@ function playChannel(channel){
 
 
 /* ==============================
-   Render channels + auto-play first
+   Render channels
 ================================= */
+function getFilteredChannels(){
+  const q = searchInput.value.trim().toLowerCase();
+  const channels = normalizeChannels();
+
+  if (!q) return channels;
+
+  return channels.filter(channel => {
+    const text = `${channel.name} ${channel.id} ${channel._group}`.toLowerCase();
+    return text.includes(q);
+  });
+}
+
 function renderGrid(){
+  const channels = getFilteredChannels();
   gridSports.innerHTML = '';
 
-  sports.forEach(c => {
-    const d = document.createElement('div');
-    d.className = 'ch';
-    d.dataset.id = c.id;
-    d.innerHTML = `
-      <img src="${escapeHtml(c.logo)}" alt="${escapeHtml(c.name)}">
-      <div class="name">${escapeHtml(c.name)}</div>
+  countText.textContent = `ทั้งหมด ${channels.length} ช่อง จาก ${sports.length} ช่อง`;
+
+  if (channels.length === 0) {
+    gridSports.innerHTML = `
+      <div class="empty">
+        ไม่พบช่องที่ค้นหา ลองพิมพ์ชื่ออื่น เช่น FIFA, beIN, True Sport หรือ Monomax
+      </div>
     `;
-    d.onclick = () => playChannel(c);
+    return;
+  }
+
+  channels.forEach(channel => {
+    const d = document.createElement('article');
+    d.className = 'channel-card';
+    d.dataset.key = channel._key;
+
+    d.innerHTML = `
+      <div class="logo-box">
+        <img loading="lazy" src="${escapeHtml(channel.logo)}" alt="${escapeHtml(channel.name)}">
+      </div>
+
+      <div class="channel-meta">
+        <div>
+          <div class="channel-name">${escapeHtml(channel.name)}</div>
+          <span class="channel-tag">${escapeHtml(channel._group)}</span>
+        </div>
+        <div class="play-dot">▶</div>
+      </div>
+    `;
+
+    d.onclick = () => playChannel(channel);
     gridSports.appendChild(d);
   });
 
-  // Auto-play channel 1 on page load
-  if (sports.length > 0) {
-    playChannel(sports[0]);
+  if (activeKey) setActive(activeKey);
+}
+
+searchInput.addEventListener('input', renderGrid);
+
+
+/* ==============================
+   Init
+================================= */
+function init(){
+  renderGrid();
+
+  const first = normalizeChannels()[0];
+
+  if (first) {
+    updateNowPlaying(first);
+    playChannel(first);
+  } else {
+    setStatus('ยังไม่มีรายการช่อง', 'bad');
   }
 }
 
-renderGrid();
+init();
 </script>
 </body>
 </html>
